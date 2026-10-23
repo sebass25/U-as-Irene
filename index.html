@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mis trabajos">
+<meta name="theme-color" content="#7f00b2">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Mis trabajos</title>
+<style>
+  :root {
+    --morado: #7f00b2;
+    --rosa: #ff69b4;
+    --texto: #2a1033;
+    --suave: #8a7590;
+    --linea: rgba(127, 0, 178, .18);
+    --fondo-rosa: rgba(255, 105, 180, .08);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: #fff; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    color: var(--texto);
+    min-height: 100vh;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--morado) 0%, var(--rosa) 100%);
+    color: #fff;
+    padding: calc(env(safe-area-inset-top) + 28px) 24px 36px;
+    border-radius: 0 0 32px 32px;
+  }
+  .fecha { font-size: 15px; opacity: .9; text-transform: capitalize; }
+  .etiqueta { margin-top: 18px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+  .total { font-size: 44px; font-weight: 700; letter-spacing: -.02em; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .cantidad { font-size: 15px; opacity: .9; margin-top: 2px; }
+
+  main { padding: 0 16px; max-width: 520px; margin: 0 auto; }
+
+  .tarjeta {
+    background: #fff;
+    border-radius: 24px;
+    padding: 20px;
+    margin-top: -20px;
+    box-shadow: 0 10px 30px rgba(127, 0, 178, .14);
+    position: relative;
+  }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--morado); margin: 0 0 6px 4px; }
+  .campo + label { margin-top: 14px; }
+  input {
+    width: 100%;
+    font: inherit;
+    font-size: 17px;
+    color: var(--texto);
+    padding: 14px 16px;
+    border: 1.5px solid var(--linea);
+    border-radius: 14px;
+    background: #fff;
+    outline: none;
+    -webkit-appearance: none;
+    transition: border-color .15s;
+  }
+  input:focus { border-color: var(--morado); }
+  .precio { position: relative; }
+  .precio span { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--suave); font-size: 17px; }
+  .precio input { padding-left: 46px; font-variant-numeric: tabular-nums; }
+
+  .guardar {
+    width: 100%;
+    margin-top: 18px;
+    padding: 16px;
+    font: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--morado) 0%, var(--rosa) 100%);
+    border: 0;
+    border-radius: 14px;
+    transition: transform .1s, opacity .2s;
+  }
+  .guardar:active { transform: scale(.98); }
+  .guardar:disabled { opacity: .55; }
+
+  h2 { font-size: 15px; color: var(--suave); font-weight: 600; margin: 28px 4px 10px; }
+
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--fondo-rosa);
+    border-radius: 16px;
+    padding: 14px 12px 14px 16px;
+    margin-bottom: 8px;
+    animation: entra .25s ease-out;
+  }
+  @keyframes entra { from { opacity: 0; transform: translateY(-6px); } }
+  .info { flex: 1; min-width: 0; }
+  .servicio { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hora { font-size: 13px; color: var(--suave); margin-top: 2px; }
+  .monto { font-size: 16px; font-weight: 600; color: var(--morado); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .borrar {
+    width: 36px; height: 36px;
+    border: 0; border-radius: 50%;
+    background: #fff;
+    color: var(--rosa);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .borrar:active { background: var(--rosa); color: #fff; }
+  .borrar svg { width: 18px; height: 18px; }
+
+  .vacio { text-align: center; color: var(--suave); font-size: 15px; padding: 28px 0; }
+
+  .aviso {
+    position: fixed;
+    left: 50%;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    transform: translate(-50%, 20px);
+    background: var(--morado);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    white-space: nowrap;
+  }
+  .aviso.ver { opacity: 1; transform: translate(-50%, 0); }
+  .aviso.error { background: var(--rosa); }
+
+  .prueba { text-align: center; font-size: 12px; color: var(--suave); margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="fecha" id="fecha"></div>
+  <div class="etiqueta">Total de hoy</div>
+  <div class="total" id="total">Gs. 0</div>
+  <div class="cantidad" id="cantidad">Sin trabajos todavía</div>
+</header>
+
+<main>
+  <form class="tarjeta" id="form" autocomplete="off">
+    <label for="servicio">Servicio</label>
+    <div class="campo"><input id="servicio" type="text" placeholder="Ej.: semipermanente" enterkeyhint="next"></div>
+    <label for="precio">Precio</label>
+    <div class="campo precio"><span>Gs.</span><input id="precio" type="text" inputmode="numeric" placeholder="0" enterkeyhint="done"></div>
+    <button class="guardar" id="guardar" type="submit">Guardar</button>
+  </form>
+
+  <h2>Trabajos de hoy</h2>
+  <ul id="lista"></ul>
+  <div class="prueba" id="prueba" hidden>Modo prueba: los datos no se guardan en la planilla.</div>
+</main>
+
+<div class="aviso" id="aviso"></div>
+
+<script>
+// Si la app se aloja fuera de Apps Script (GitHub Pages), pegar acá la URL que termina en /exec
+const API_URL = 'https://script.google.com/macros/s/AKfycbxpsBxas03EMngab7ZiOZvKFWgRkMqrRmsC4GUWM9qU0bH5Vrw-tNmbEMS7lI6CY3c9/exec';
+
+const enAppsScript = typeof google !== 'undefined' && google.script && google.script.run;
+const $ = id => document.getElementById(id);
+const gs = n => 'Gs. ' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+// ---- Comunicación con la planilla ----
+let demo = [];
+function llamar(datos) {
+  let p;
+  if (enAppsScript) {
+    p = new Promise((ok, mal) =>
+      google.script.run.withSuccessHandler(ok).withFailureHandler(mal).api(datos));
+  } else if (API_URL) {
+    p = datos.accion === 'hoy'
+      ? fetch(API_URL + '?accion=hoy').then(r => r.json())
+      : fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(datos)
+        }).then(r => r.json());
+  } else {
+    $('prueba').hidden = false;
+    if (datos.accion === 'guardar') {
+      const d = new Date();
+      demo.unshift({ id: String(d.getTime()), hora: d.toTimeString().slice(0, 5), servicio: datos.servicio, precio: datos.precio });
+    }
+    if (datos.accion === 'borrar') demo = demo.filter(t => t.id !== datos.id);
+    p = Promise.resolve({ total: demo.reduce((s, t) => s + t.precio, 0), trabajos: demo });
+  }
+  return p.then(r => { if (r && r.error) throw new Error(r.error); return r; });
+}
+
+// ---- Pantalla ----
+function mostrar(d) {
+  $('fecha').textContent = new Date().toLocaleDateString('es-PY', { weekday: 'long', day: 'numeric', month: 'long' });
+  $('total').textContent = gs(d.total);
+  const n = d.trabajos.length;
+  $('cantidad').textContent = n === 0 ? 'Sin trabajos todavía' : n === 1 ? '1 trabajo' : n + ' trabajos';
+
+  const lista = $('lista');
+  lista.innerHTML = '';
+  if (n === 0) {
+    lista.innerHTML = '<div class="vacio">Todavía no cargaste trabajos hoy</div>';
+    return;
+  }
+  d.trabajos.forEach(t => {
+    const li = document.createElement('li');
+    li.innerHTML =
+      '<div class="info"><div class="servicio"></div><div class="hora"></div></div>' +
+      '<div class="monto"></div>' +
+      '<button class="borrar" aria-label="Borrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>';
+    li.querySelector('.servicio').textContent = t.servicio;
+    li.querySelector('.hora').textContent = t.hora;
+    li.querySelector('.monto').textContent = gs(t.precio);
+    li.querySelector('.borrar').onclick = () => borrar(t);
+    lista.appendChild(li);
+  });
+}
+
+let tAviso;
+function aviso(texto, error) {
+  const a = $('aviso');
+  a.textContent = texto;
+  a.className = 'aviso ver' + (error ? ' error' : '');
+  clearTimeout(tAviso);
+  tAviso = setTimeout(() => a.className = 'aviso', 2200);
+}
+
+function cargar() {
+  llamar({ accion: 'hoy' }).then(mostrar).catch(() => aviso('Sin conexión', true));
+}
+
+// ---- Acciones ----
+$('precio').addEventListener('input', e => {
+  const dig = e.target.value.replace(/\D/g, '').slice(0, 10);
+  e.target.value = dig ? dig.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+});
+
+$('servicio').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); $('precio').focus(); }
+});
+
+$('form').addEventListener('submit', e => {
+  e.preventDefault();
+  const servicio = $('servicio').value.trim();
+  const precio = Number($('precio').value.replace(/\D/g, ''));
+  if (!servicio) { aviso('Falta el servicio', true); $('servicio').focus(); return; }
+  if (!precio) { aviso('Falta el precio', true); $('precio').focus(); return; }
+
+  const btn = $('guardar');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+  llamar({ accion: 'guardar', servicio, precio })
+    .then(d => {
+      mostrar(d);
+      $('servicio').value = '';
+      $('precio').value = '';
+      document.activeElement.blur();
+      aviso('Guardado ✓');
+    })
+    .catch(() => aviso('No se guardó. Probá de nuevo', true))
+    .finally(() => { btn.disabled = false; btn.textContent = 'Guardar'; });
+});
+
+function borrar(t) {
+  if (!confirm('¿Borrar "' + t.servicio + '" de ' + gs(t.precio) + '?')) return;
+  llamar({ accion: 'borrar', id: t.id })
+    .then(d => { mostrar(d); aviso('Borrado'); })
+    .catch(() => aviso('No se borró. Probá de nuevo', true));
+}
+
+// Al volver a abrir la app (por ejemplo, al día siguiente) se actualiza sola
+document.addEventListener('visibilitychange', () => { if (!document.hidden) cargar(); });
+cargar();
+</script>
+</body>
+</html>
